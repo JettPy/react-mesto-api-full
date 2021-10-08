@@ -1,0 +1,12 @@
+.popup__title_tip {
+  text-align: center;
+  margin-bottom: 60px;
+}
+
+@media screen and (max-width: 768px) {
+
+  .popup__title_tip {
+    margin-bottom: 50px;
+  }
+
+}
