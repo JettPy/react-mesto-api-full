@@ -10,6 +10,8 @@ export const config = {
 export const options = {
   baseUrl: 'https://server.suslika.nomoredomains.club',
   headers: {
-    'Content-Type': 'application/json'
+    'Content-Type': 'application/json',
+    'Origin': 'https://mesto.suslika.nomoredomains.club',
+    'Host': 'https://server.suslika.nomoredomains.club',
   }
 };
