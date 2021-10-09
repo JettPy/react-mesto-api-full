@@ -4,6 +4,7 @@ const bodyParser = require('body-parser');
 const helmet = require('helmet');
 const cookieParser = require('cookie-parser');
 const { celebrate, Joi, errors } = require('celebrate');
+const cors = require('cors');
 const HttpError = require('./utils/HttpError');
 
 const { PORT = 3000 } = process.env;
@@ -16,6 +17,9 @@ const auth = require('./middlewares/auth');
 const users = require('./routes/users');
 const cards = require('./routes/cards');
 
+app.use(cors({
+  origin: "https://mesto.suslika.nomoredomains.club",
+}));
 app.use(helmet());
 app.disable('x-powered-by');
 app.use(bodyParser.json());
