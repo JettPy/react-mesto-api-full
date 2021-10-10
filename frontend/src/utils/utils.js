@@ -7,4 +7,4 @@ export const config = {
   errorClass: 'popup__error_visible'
 };
 
-export const backendUrl = 'http://localhost:3001';
+export const backendUrl = 'https://server.suslika.nomoredomains.club';
