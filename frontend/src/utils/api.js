@@ -1,12 +1,10 @@
-import { options } from './utils.js';
+import { backendUrl } from './utils.js';
 
 class Api {
 
-  constructor(options) {
-    this._cardsUrl = options.baseUrl + '/cards';
-    this._userUrl = options.baseUrl + '/users/me';
-    this._likesUrl = options.baseUrl + '/cards/likes/';
-    this._headers = options.headers;
+  constructor(baseUrl) {
+    this._cardsUrl = baseUrl + '/cards';
+    this._userUrl = baseUrl + '/users/me';
   }
 
   _checkResponse(result) { // Проверка промиса
@@ -16,27 +14,33 @@ class Api {
     return Promise.reject(`Ошибка: ${result.status}`);
   }
 
-  getUserInfo() { // Загрузка информации о пользователе с сервера
+  getUserInfo(token) { // Загрузка информации о пользователе с сервера
     return fetch(this._userUrl, {
-      credentials: 'include',
-      headers: this._headers,
+      headers: {
+        'Content-Type': 'application/json',
+        authorization: `Bearer ${token}`,
+      }
     })
       .then(this._checkResponse);
   }
 
-  getInitialCards() { // Загрузка карточек с сервера
+  getInitialCards(token) { // Загрузка карточек с сервера
     return fetch(this._cardsUrl, {
-      credentials: 'include',
-      headers: this._headers,
+      headers: {
+        'Content-Type': 'application/json',
+        authorization: `Bearer ${token}`,
+      }
     })
       .then(this._checkResponse);
   }
 
-  updateUserInfo(name, about) { // Редактирование профиля
+  updateUserInfo(name, about, token) { // Редактирование профиля
     return fetch(this._userUrl, {
       method: "PATCH",
-      credentials: 'include',
-      headers: this._headers,
+      headers: {
+        'Content-Type': 'application/json',
+        authorization: `Bearer ${token}`,
+      },
       body: JSON.stringify({
         name,
         about
@@ -45,11 +49,13 @@ class Api {
       .then(this._checkResponse);
   }
 
-  addCard(name, link) { // Добавление новой карточки
-    return fetch(this._cardsUrl, {
+  addCard(name, link, token) { // Добавление новой карточки
+      return fetch(this._cardsUrl, {
       method: "POST",
-      credentials: 'include',
-      headers: this._headers,
+      headers: {
+        'Content-Type': 'application/json',
+        authorization: `Bearer ${token}`,
+      },
       body: JSON.stringify({
         name,
         link
@@ -58,38 +64,46 @@ class Api {
       .then(this._checkResponse);
   }
 
-  deleteCard(cardId) { // Удаление карточки
+  deleteCard(cardId, token) { // Удаление карточки
     return fetch(this._cardsUrl + '/' + cardId, {
       method: "DELETE",
-      credentials: 'include',
-      headers: this._headers
+      headers: {
+        'Content-Type': 'application/json',
+        authorization: `Bearer ${token}`,
+      }
     })
       .then(this._checkResponse);
   }
 
-  like(cardId) { // Постановка лайка
-    return fetch(this._likesUrl + cardId, {
+  like(cardId, token) { // Постановка лайка
+    return fetch(this._cardsUrl + '/' + cardId + '/likes', {
       method: "PUT",
-      credentials: 'include',
-      headers: this._headers
+      headers: {
+        'Content-Type': 'application/json',
+        authorization: `Bearer ${token}`,
+      }
     })
       .then(this._checkResponse);
   }
 
-  dislike(cardId) { // Снятие лайка
-    return fetch(this._likesUrl + cardId, {
+  dislike(cardId, token) { // Снятие лайка
+    return fetch(this._cardsUrl + '/' + cardId + '/likes', {
       method: "DELETE",
-      credentials: 'include',
-      headers: this._headers
+      headers: {
+        'Content-Type': 'application/json',
+        authorization: `Bearer ${token}`,
+      }
     })
       .then(this._checkResponse);
   }
 
-  updateAvatar(avatar) { // Обновление аватара пользователя
+  updateAvatar(avatar, token) { // Обновление аватара пользователя
     return fetch(this._userUrl + '/avatar', {
       method: "PATCH",
-      credentials: 'include',
-      headers: this._headers,
+      headers: {
+        'Content-Type': 'application/json',
+        authorization: `Bearer ${token}`,
+      },
       body: JSON.stringify({
         avatar
       })
@@ -98,6 +112,6 @@ class Api {
   }
 }
 
-const api = new Api(options);
+const api = new Api(backendUrl);
 
 export default api;

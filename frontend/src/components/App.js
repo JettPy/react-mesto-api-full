@@ -31,27 +31,38 @@ function App() {
   const [registerd, setRegisterd] = React.useState(false);
   const [isInfoTooltipOpen, setIsInfoTooltipOpen] = React.useState(false);
   const [email, setEmail] = React.useState('');
+  const [token, setToken] = React.useState('');
   const history = useHistory();
   
   React.useEffect(() => { // Запросы к серверу за данными пользователя и карточек
-    Promise.all([api.getUserInfo(), api.getInitialCards()])
-      .then((results) => {
-        const [user, cards] = results;
-        setCurrentUser(user);
-        setCards(cards);
-      })
-      .catch((error) => {
-        console.log(error);
-      });
-    tokenCheck();
-  }, []);
+    
+    const jwt = localStorage.getItem('jwt');
+    if (jwt) {
+      setLoggedIn(true);
+      Promise.all([auth.getContent(jwt), api.getUserInfo(jwt), api.getInitialCards(jwt)])
+        .then((results) => {
+          const [response, user, cards] = results;
+          setCurrentUser(user);
+          setCards(cards.reverse());
+          setToken(jwt);
+          if (response) {
+            setLoggedIn(true);
+            setEmail(response['email']);
+            history.push('/');
+          }
+        })
+        .catch((error) => {
+          console.log(error);
+        });
+    }
+  }, [history, loggedIn]);
 
   const handleEditAvatarClick = () => { // Обработчик кнопки редактирования аватара
     setIsEditAvatarPopupOpen(true);
   };
 
   const handleUpdateAvatar = (avatar) => { // Обработчик обнавления аватара пользователя
-    api.updateAvatar(avatar)
+    api.updateAvatar(avatar, token)
       .then((result) => {
         setCurrentUser(result);
         closeAllPopups();
@@ -66,7 +77,7 @@ function App() {
   };
 
   const handleUpdateUser = (userData) => { // Обработчик обнавления данных пользователя
-    api.updateUserInfo(userData.name, userData.about)
+   api.updateUserInfo(userData.name, userData.about, token)
       .then((result) => {
         setCurrentUser(result);
         closeAllPopups();
@@ -81,7 +92,7 @@ function App() {
   };
 
   const handleAddPlace = (name, link) => { // Обработчик добавления карточки
-    api.addCard(name, link)
+    api.addCard(name, link, token)
       .then((result) => {
         setCards([result, ...cards]);
         closeAllPopups();
@@ -92,7 +103,7 @@ function App() {
   };
 
   const handleConfirm = () => { // Обработчик подтверждения удаления карточки
-    api.deleteCard(delitingCard._id)
+    api.deleteCard(delitingCard._id, token)
     .then(() => {
       setCards(cards.filter((c) => c._id !== delitingCard._id));
       closeAllPopups();
@@ -110,11 +121,11 @@ function App() {
   function handleCardLike(card) { // Обработчик лайка картчки
     const isLiked = card.likes.some(i => i._id === currentUser._id);
     if (isLiked) {
-      api.dislike(card._id).then((newCard) => {
+      api.dislike(card._id, token).then((newCard) => {
         setCards((state) => state.map((c) => c._id === card._id ? newCard : c));
       });
     } else {
-      api.like(card._id).then((newCard) => {
+      api.like(card._id, token).then((newCard) => {
         setCards((state) => state.map((c) => c._id === card._id ? newCard : c));
       });
     }
@@ -127,6 +138,8 @@ function App() {
 
   const handleSignOut = () => { // Обработчик выхода из системы
     localStorage.removeItem('jwt');
+    setToken('');
+    setLoggedIn(false);
     history.push('/sign-in');
   }
 
@@ -147,31 +160,14 @@ function App() {
   const handleLogin = (password, email) => { // Обработчик входа в систему
     auth.authorize(password, email)
     .then((response) => {
+      localStorage.setItem('jwt', response.token);
       setLoggedIn(true);
       setEmail(email);
-      localStorage.setItem('jwt', response.token);
       history.push('/');
     })
     .catch((error) => {
       console.log(error);
     });
-  }
-
-  const tokenCheck = () => { // Проверка на сохраненный токен
-    const jwt = localStorage.getItem('jwt');
-    if (jwt) {
-      auth.getContent(jwt)
-      .then((response) => {
-        if (response) {
-          setLoggedIn(true);
-          setEmail(response.data['email']);
-          history.push('/');
-        }
-      })
-      .catch((error) => {
-        console.log(error);
-      });
-    }
   }
 
   const closeAllPopups = () => { // Закрытие всех попапов

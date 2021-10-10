@@ -1,4 +1,4 @@
-export const BASE_URL = 'https://server.suslika.nomoredomains.club';
+import { backendUrl } from './utils.js';
 
 const checkResponse = (result)  => { // Проверка промиса
   if (result.ok) {
@@ -8,7 +8,7 @@ const checkResponse = (result)  => { // Проверка промиса
 }
 
 export const register = (password, email) => { // Регистрация
-  return fetch(`${BASE_URL}/signup`, {
+  return fetch(`${backendUrl}/signup`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -19,7 +19,7 @@ export const register = (password, email) => { // Регистрация
 }
 
 export const authorize = (password, email) => { // Авторизация
-  return fetch(`${BASE_URL}/signin`, {
+  return fetch(`${backendUrl}/signin`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -30,12 +30,13 @@ export const authorize = (password, email) => { // Авторизация
 }
 
 export const getContent = (token) => { // Получение пользователя по токену
-  return fetch(`${BASE_URL}/users/me`, {
+  return fetch(`${backendUrl}/users/me`, {
     method: "GET",
     headers: {
       "Content-Type": "application/json",
-      Authorization: `Bearer ${token}`,
+      authorization: `Bearer ${token}`,
     },
   })
-  .then((response) => checkResponse(response));
+  .then((response) => checkResponse(response))
+  .then(data => data);
 }

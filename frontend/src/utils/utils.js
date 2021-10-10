@@ -7,11 +7,4 @@ export const config = {
   errorClass: 'popup__error_visible'
 };
 
-export const options = {
-  baseUrl: 'https://server.suslika.nomoredomains.club',
-  headers: {
-    'Content-Type': 'application/json',
-    'Origin': 'https://mesto.suslika.nomoredomains.club',
-    'Host': 'https://server.suslika.nomoredomains.club',
-  }
-};
+export const backendUrl = 'http://localhost:3001';

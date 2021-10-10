@@ -5,6 +5,7 @@ const helmet = require('helmet');
 const cookieParser = require('cookie-parser');
 const { celebrate, Joi, errors } = require('celebrate');
 const cors = require('cors');
+require('dotenv').config();
 const HttpError = require('./utils/HttpError');
 
 const { PORT = 3000 } = process.env;
@@ -17,16 +18,7 @@ const auth = require('./middlewares/auth');
 const users = require('./routes/users');
 const cards = require('./routes/cards');
 
-app.use((req, res, next) => {
-  res.header('Access-Control-Allow-Origin', req.headers.origin);
-  res.header('Access-Control-Allow-Credentials', true);
-  res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept');
-  next();
-});
-
-app.use(cors({
-  credentials: true,
-}));
+app.use(cors());
 app.use(helmet());
 app.disable('x-powered-by');
 app.use(bodyParser.json());
@@ -36,6 +28,12 @@ app.use(cookieParser());
 mongoose.connect('mongodb://localhost:27017/mestodb');
 
 app.use(requestLogger);
+
+app.get('/crash-test', () => {
+  setTimeout(() => {
+    throw new Error('Сервер сейчас упадёт');
+  }, 0);
+});
 
 app.post('/signin', celebrate({
   body: Joi.object().keys({
