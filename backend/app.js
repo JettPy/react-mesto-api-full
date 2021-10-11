@@ -58,8 +58,8 @@ app.use('/users', users);
 app.use('/cards', cards);
 
 // eslint-disable-next-line no-unused-vars
-app.get('*', (req, res) => {
-  throw new HttpError(404, 'notFoundError', 'Запрашиваемый ресурс не найден');
+app.use('*', (req, res) => {
+  throw new HttpError(404, 'notFoundError', 'Ресурс не найден');
 });
 
 app.use(errorLogger);
